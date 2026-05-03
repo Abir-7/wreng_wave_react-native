@@ -45,12 +45,15 @@ const OtpBoxInput = () => {
 
 const Otp = () => {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: string }>();
+  const { role, flow } = useLocalSearchParams<{ role: string; flow?: string }>();
 
   const onSubmit = (data: OtpForm) => {
     console.log("OTP Submitted:", data.otp);
-
-    router.push({ pathname: "/login", params: { role } });
+    if (flow === "forgot-password") {
+      router.push({ pathname: "/reset-password", params: { role } });
+    } else {
+      router.push({ pathname: "/login", params: { role } });
+    }
   };
 
   return (
