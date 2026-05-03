@@ -38,15 +38,15 @@ export default function RoleScreen() {
         {/* User Card */}
         <TouchableOpacity
           onPress={() => {
-            setSelected("user");
-            handleContinue("user");
+            setSelected("customer");
+            handleContinue("customer");
           }}
           style={{
             ...styles.button,
             backgroundColor:
-              selected === "user" ? Colors.primary : "transparent",
+              selected === "customer" ? Colors.primary : "transparent",
             borderColor: "white",
-            borderWidth: selected === "user" ? 0 : 1,
+            borderWidth: selected === "customer" ? 0 : 1,
           }}
         >
           <Text style={styles.button_text}>User</Text>

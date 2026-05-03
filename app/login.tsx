@@ -1,3 +1,4 @@
+import { useLogin } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
@@ -15,15 +16,10 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: "user" | "mechanic" }>();
-
+  const { role } = useLocalSearchParams<{ role: "customer" | "mechanic" }>();
+  const { mutate: login, isPending, error } = useLogin();
   const onSubmit = (data: LoginForm) => {
-    console.log("Login as:", role, data);
-    if (role === "user") {
-      router.replace("/(user)/home");
-    } else if (role === "mechanic") {
-      router.replace("/(mechanic)/home");
-    }
+    login({ user_email: data.email, password: data.password });
   };
 
   return (

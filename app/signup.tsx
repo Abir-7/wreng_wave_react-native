@@ -13,26 +13,30 @@ import {
 } from "react-native";
 import { z } from "zod";
 
-const signupSchema = z.object({
-  email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  full_name: z.string().min(3, "Name must be at least 3 characters"),
-  confirm_password: z.string().min(6, "Password must be at least 6 characters"),
-}).refine((data) => data.password === data.confirm_password, {
-  message: "Passwords don't match",
-  path: ["confirm_password"],
-});
+const signupSchema = z
+  .object({
+    email: z.email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    full_name: z.string().min(3, "Name must be at least 3 characters"),
+    confirm_password: z
+      .string()
+      .min(6, "Password must be at least 6 characters"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords don't match",
+    path: ["confirm_password"],
+  });
 
 type SignupForm = z.infer<typeof signupSchema>;
 
 const Signup = () => {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: "user" | "mechanic" }>();
+  const { role } = useLocalSearchParams<{ role: "customer" | "mechanic" }>();
 
   const onSubmit = (data: SignupForm) => {
     if (role === "mechanic") {
       ToastAndroid.show("Failed to create account", ToastAndroid.SHORT);
-      router.push({ pathname: "/", params: { role: "user" } });
+      router.push({ pathname: "/", params: { role: "customer" } });
       return;
     }
     router.push({ pathname: "/otp", params: { role: role } });
@@ -56,7 +60,9 @@ const Signup = () => {
         <View style={styles.signupRow}>
           <Text style={styles.signupText}>Already have an account? </Text>
           <TouchableOpacity
-            onPress={() => router.push({ pathname: "/login", params: { role } })}
+            onPress={() =>
+              router.push({ pathname: "/login", params: { role } })
+            }
           >
             <Text style={styles.signupLink}>Login</Text>
           </TouchableOpacity>

@@ -3,7 +3,7 @@ import { useAuthStore } from "@/store/auth.store";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://your-api.com/api", // 🔁 replace with your API URL
+  baseURL: "http://10.10.12.70:8000/api", // 🔁 replace with your API URL
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -12,7 +12,7 @@ export const api = axios.create({
 
 // ✅ Auto attach token to every request
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
+  const token = useAuthStore.getState().access_token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
