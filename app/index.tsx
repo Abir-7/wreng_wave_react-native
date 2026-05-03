@@ -13,8 +13,8 @@ export default function RoleScreen() {
   const router = useRouter();
   const [selected, setSelected] = useState<"user" | "mechanic" | null>(null);
 
-  const handleContinue = (data: "user" | "mechanic") => {
-    router.push({ pathname: "/login", params: { role: selected } });
+  const handleContinue = (role: "user" | "mechanic") => {
+    router.push({ pathname: "/login", params: { role } });
   };
 
   return (

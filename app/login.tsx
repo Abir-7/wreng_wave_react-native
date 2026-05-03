@@ -19,6 +19,11 @@ export default function LoginScreen() {
 
   const onSubmit = (data: LoginForm) => {
     console.log("Login as:", role, data);
+    if (role === "user") {
+      router.replace("/(user)/home");
+    } else if (role === "mechanic") {
+      router.replace("/(mechanic)/home");
+    }
   };
 
   return (
