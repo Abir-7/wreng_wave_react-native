@@ -1,6 +1,7 @@
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -24,7 +25,7 @@ type SignupForm = z.infer<typeof signupSchema>;
 
 const Signup = () => {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: "user" | "mechanic" }>();
+  const { role } = useLocalSearchParams<{ role: ValidRole }>();
 
   const onSubmit = (data: SignupForm) => {
     if (role === "mechanic") {
@@ -42,7 +43,12 @@ const Signup = () => {
       title={"Sign in now"}
       subtitle=""
       resolver={zodResolver(signupSchema)}
-      defaultValues={{ email: "", password: "", full_name: "", confirm_password: "" }}
+      defaultValues={{
+        email: "",
+        password: "",
+        full_name: "",
+        confirm_password: "",
+      }}
       onSubmit={onSubmit}
     >
       <InputField<SignupForm>

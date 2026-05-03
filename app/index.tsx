@@ -1,4 +1,5 @@
 import { Colors } from "@/colors/colors";
+import { Role } from "@/store/auth.store";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -11,9 +12,9 @@ import {
 
 export default function RoleScreen() {
   const router = useRouter();
-  const [selected, setSelected] = useState<"user" | "mechanic" | null>(null);
+  const [selected, setSelected] = useState<Role | null>(null);
 
-  const handleContinue = (role: "user" | "mechanic") => {
+  const handleContinue = (role: Role) => {
     router.push({ pathname: "/login", params: { role } });
   };
 
