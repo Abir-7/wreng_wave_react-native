@@ -49,6 +49,7 @@ const Otp = () => {
 
   const onSubmit = (data: OtpForm) => {
     console.log("OTP Submitted:", data.otp);
+
     router.push({ pathname: "/login", params: { role } });
   };
 
