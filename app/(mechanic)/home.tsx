@@ -2,12 +2,13 @@ import { Colors } from "@/colors/colors";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MechanicHome() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome, Mechanic!</Text>
       <Text style={styles.subtitle}>Manage your service requests here.</Text>
 
@@ -17,7 +18,7 @@ export default function MechanicHome() {
       >
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

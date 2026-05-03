@@ -10,9 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function RoleScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [selected, setSelected] = useState<ValidRole | null>(null);
 
   const handleContinue = (role: ValidRole) => {
@@ -22,7 +24,10 @@ export default function RoleScreen() {
   return (
     <ImageBackground
       source={require("../assets/ui/select_role.jpg")}
-      style={styles.container}
+      style={[
+        styles.container,
+        { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+      ]}
     >
       <View style={styles.overlay} />
       <View style={styles.headerContainer}>
@@ -74,8 +79,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
-    paddingBottom: 60,
-    paddingTop: 60,
   },
   overlay: {
     position: "absolute",

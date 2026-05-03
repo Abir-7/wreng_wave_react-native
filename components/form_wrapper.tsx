@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FormWrapperProps<T extends FieldValues> {
   title: string;
@@ -46,64 +47,66 @@ export default function FormWrapper<T extends FieldValues>({
 
   return (
     <FormProvider {...methods}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }} edges={["top", "left", "right"]}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View style={styles.container}>
-            {/* Back Button */}
-            {showBack && (
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <TouchableOpacity onPress={() => router.back()}>
-                  <View
-                    style={{
-                      height: 30,
-                      width: 30,
-                      borderRadius: 20,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: Colors.primary,
-                    }}
-                  >
-                    <Ionicons name={"arrow-back"} size={20} color="#fff" />
-                  </View>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.container}>
+              {/* Back Button */}
+              {showBack && (
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+                >
+                  <TouchableOpacity onPress={() => router.back()}>
+                    <View
+                      style={{
+                        height: 30,
+                        width: 30,
+                        borderRadius: 20,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: Colors.primary,
+                      }}
+                    >
+                      <Ionicons name={"arrow-back"} size={20} color="#fff" />
+                    </View>
+                  </TouchableOpacity>
+                  <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                    Wrengwave
+                  </Text>
+                </View>
+              )}
+
+              {/* Card */}
+              <View style={styles.card}>
+                {/* Header */}
+                <Text style={styles.title}>{title}</Text>
+                {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+
+                {/* Children */}
+                <View style={{ marginTop: 20 }}>{children}</View>
+
+                {/* Submit Button */}
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={methods.handleSubmit(onSubmit)}
+                >
+                  <Text style={styles.buttonText}>{submitLabel}</Text>
                 </TouchableOpacity>
-                <Text style={{ fontSize: 25, fontWeight: "bold" }}>
-                  Wrengwave
-                </Text>
+
+                {/* Footer */}
+                {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
               </View>
-            )}
-
-            {/* Card */}
-            <View style={styles.card}>
-              {/* Header */}
-              <Text style={styles.title}>{title}</Text>
-              {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-
-              {/* Children */}
-              <View style={{ marginTop: 20 }}>{children}</View>
-
-              {/* Submit Button */}
-              <TouchableOpacity
-                style={styles.button}
-                onPress={methods.handleSubmit(onSubmit)}
-              >
-                <Text style={styles.buttonText}>{submitLabel}</Text>
-              </TouchableOpacity>
-
-              {/* Footer */}
-              {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </FormProvider>
   );
 }
@@ -111,9 +114,7 @@ export default function FormWrapper<T extends FieldValues>({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     padding: 24,
-    paddingTop: 60,
   },
   card: {},
   title: {
