@@ -32,7 +32,7 @@ const Signup = () => {
       router.push({ pathname: "/", params: { role: "user" } });
       return;
     }
-    router.push({ pathname: "/login", params: { role: role } });
+    router.push({ pathname: "/otp", params: { role: role } });
     const data_with_role = { ...data, role: role };
     console.log(data_with_role);
   };
@@ -42,7 +42,7 @@ const Signup = () => {
       title={"Sign in now"}
       subtitle=""
       resolver={zodResolver(signupSchema)}
-      defaultValues={{ email: "", password: "" }}
+      defaultValues={{ email: "", password: "", full_name: "", confirm_password: "" }}
       onSubmit={onSubmit}
     >
       <InputField<SignupForm>

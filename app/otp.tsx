@@ -1,0 +1,132 @@
+import { Colors } from "@/colors/colors";
+import FormWrapper from "@/components/form_wrapper";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
+import { z } from "zod";
+
+const otpSchema = z.object({
+  otp: z.string().length(6, "OTP must be 6 digits"),
+});
+
+type OtpForm = z.infer<typeof otpSchema>;
+
+const OtpBoxInput = () => {
+  const { control } = useFormContext<OtpForm>();
+
+  return (
+    <View style={styles.otpContainer}>
+      <Controller
+        control={control}
+        name="otp"
+        render={({ field: { onChange }, fieldState: { error } }) => (
+          <>
+            <OtpInput
+              numberOfDigits={6}
+              onTextChange={onChange}
+              focusColor={Colors.primary}
+              theme={{
+                containerStyle: styles.boxesRow,
+                pinCodeContainerStyle: styles.box,
+                pinCodeTextStyle: styles.boxText,
+                focusedPinCodeContainerStyle: styles.boxFocused,
+              }}
+            />
+            {error && <Text style={styles.errorText}>{error.message}</Text>}
+          </>
+        )}
+      />
+    </View>
+  );
+};
+
+const Otp = () => {
+  const router = useRouter();
+  const { role } = useLocalSearchParams<{ role: string }>();
+
+  const onSubmit = (data: OtpForm) => {
+    console.log("OTP Submitted:", data.otp);
+    router.push({ pathname: "/login", params: { role } });
+  };
+
+  return (
+    <FormWrapper
+      title="Verify your email"
+      subtitle="We have sent a 6-digit code to your email"
+      resolver={zodResolver(otpSchema)}
+      defaultValues={{ otp: "" }}
+      onSubmit={onSubmit}
+      submitLabel="Verify"
+    >
+      <OtpBoxInput />
+
+      <View style={styles.resendRow}>
+        <Text style={styles.resendText}>Didn&apos;t receive the code? </Text>
+        <TouchableOpacity onPress={() => console.log("Resend OTP")}>
+          <Text style={styles.resendLink}>Resend</Text>
+        </TouchableOpacity>
+      </View>
+    </FormWrapper>
+  );
+};
+
+export default Otp;
+
+const styles = StyleSheet.create({
+  otpContainer: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#444",
+    marginBottom: 12,
+  },
+  boxesRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  box: {
+    width: 45,
+    height: 55,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  boxFocused: {
+    borderColor: Colors.primary,
+    borderWidth: 2,
+    backgroundColor: "#fff",
+  },
+  boxText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1a1a1a",
+  },
+  errorText: {
+    color: "#d32f2f",
+    fontSize: 12,
+    marginTop: 8,
+  },
+  resendRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  resendText: {
+    color: "#888",
+    fontSize: 14,
+  },
+  resendLink: {
+    color: Colors.secondary,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+});
