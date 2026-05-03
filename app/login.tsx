@@ -1,7 +1,6 @@
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
-import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -16,9 +15,10 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: ValidRole }>();
+  const { role } = useLocalSearchParams<{ role: "user" | "mechanic" }>();
 
   const onSubmit = (data: LoginForm) => {
+    console.log("Login as:", role, data);
     if (role === "user") {
       router.replace("/(user)/home");
     } else if (role === "mechanic") {
@@ -33,6 +33,18 @@ export default function LoginScreen() {
       resolver={zodResolver(loginSchema)}
       defaultValues={{ email: "", password: "" }}
       onSubmit={onSubmit}
+      footer={
+        <View style={styles.signupRow}>
+          <Text style={styles.signupText}>Don&apos;t have an account? </Text>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({ pathname: "/signup", params: { role } })
+            }
+          >
+            <Text style={styles.signupLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      }
     >
       <InputField<LoginForm>
         name="email"
@@ -58,16 +70,6 @@ export default function LoginScreen() {
       >
         <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
       </TouchableOpacity>
-
-      {/* Signup Link */}
-      <View style={styles.signupRow}>
-        <Text style={styles.signupText}>Don&apos;t have an account? </Text>
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: "/signup", params: { role } })}
-        >
-          <Text style={styles.signupLink}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
     </FormWrapper>
   );
 }

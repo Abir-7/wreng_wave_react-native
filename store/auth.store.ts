@@ -1,32 +1,23 @@
 import { create } from "zustand";
 
-export type Role = "user" | "mechanic" | null;
-export type ValidRole = Exclude<Role, null>;
-type User = {
-  user_id: string;
-  full_name: string;
-  email: string;
-  avatar: string | null;
-};
+export type ValidRole = "user" | "mechanic";
 
 interface AuthState {
-  role: Role;
   token: string | null;
-  user: User | null;
-
-  setRole: (role: Role) => void;
-  setToken: (token: string) => void;
-  setUser: (user: User) => void;
+  role: ValidRole | null;
+  user: any | null;
+  setRole: (role: ValidRole | null) => void;
+  setToken: (token: string | null) => void; // ✅ added to interface
+  setUser: (user: any | null) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   role: null,
-  token: null,
   user: null,
-
+  token: null,
   setRole: (role) => set({ role }),
-  setToken: (token) => set({ token }),
+  setToken: (token) => set({ token }), // ✅ already correct
   setUser: (user) => set({ user }),
-  logout: () => set({ role: null, token: null, user: null }),
+  logout: () => set({ role: null, user: null, token: null }), // ✅ clear token too
 }));

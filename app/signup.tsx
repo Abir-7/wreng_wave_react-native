@@ -1,7 +1,6 @@
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
-import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -19,13 +18,16 @@ const signupSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   full_name: z.string().min(3, "Name must be at least 3 characters"),
   confirm_password: z.string().min(6, "Password must be at least 6 characters"),
+}).refine((data) => data.password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
 });
 
 type SignupForm = z.infer<typeof signupSchema>;
 
 const Signup = () => {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: ValidRole }>();
+  const { role } = useLocalSearchParams<{ role: "user" | "mechanic" }>();
 
   const onSubmit = (data: SignupForm) => {
     if (role === "mechanic") {
@@ -40,7 +42,7 @@ const Signup = () => {
 
   return (
     <FormWrapper
-      title={"Sign in now"}
+      title={"Sign up now"}
       subtitle=""
       resolver={zodResolver(signupSchema)}
       defaultValues={{
@@ -50,6 +52,16 @@ const Signup = () => {
         confirm_password: "",
       }}
       onSubmit={onSubmit}
+      footer={
+        <View style={styles.signupRow}>
+          <Text style={styles.signupText}>Already have an account? </Text>
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: "/login", params: { role } })}
+          >
+            <Text style={styles.signupLink}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      }
     >
       <InputField<SignupForm>
         name="full_name"
@@ -78,16 +90,6 @@ const Signup = () => {
         placeholder="Enter your password"
         secureTextEntry
       />
-
-      {/* Signup Link */}
-      <View style={styles.signupRow}>
-        <Text style={styles.signupText}>Already have an account? </Text>
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: "/login", params: { role } })}
-        >
-          <Text style={styles.signupLink}>Login</Text>
-        </TouchableOpacity>
-      </View>
     </FormWrapper>
   );
 };

@@ -22,6 +22,7 @@ interface FormWrapperProps<T extends FieldValues> {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
   showBack?: boolean;
   submitLabel?: string;
   defaultValues?: DefaultValues<T>;
@@ -33,6 +34,7 @@ export default function FormWrapper<T extends FieldValues>({
   title,
   subtitle,
   children,
+  footer,
   showBack = true,
   submitLabel = "Submit",
   defaultValues,
@@ -95,6 +97,9 @@ export default function FormWrapper<T extends FieldValues>({
               >
                 <Text style={styles.buttonText}>{submitLabel}</Text>
               </TouchableOpacity>
+
+              {/* Footer */}
+              {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
             </View>
           </View>
         </ScrollView>
