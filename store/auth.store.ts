@@ -1,8 +1,10 @@
 import { DecodedToken } from "@/types/api/auth.types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-export type ValidRole = "customer" | "mechanic"; // ✅ "customer" not "customer"
+export type ValidRole = "customer" | "mechanic";
 
 interface AuthState {
   access_token: string | null;
@@ -23,55 +25,67 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  access_token: null,
-  refresh_token: null,
-  role: null,
-  user_id: null,
-  user_email: null,
-
-  // ✅ set both tokens
-  setTokens: (access, refresh) =>
-    set({ access_token: access, refresh_token: refresh }),
-
-  // ✅ set everything from login response in one call
-  setFromResponse: (res) =>
-    set({
-      access_token: res.access_token,
-      refresh_token: res.refresh_token,
-      role: res.role,
-      user_id: res.user_id,
-    }),
-
-  // ✅ decode access token
-  decodeToken: () => {
-    const token = get().access_token;
-    if (!token) return null;
-    try {
-      return jwtDecode<DecodedToken>(token);
-    } catch {
-      return null;
-    }
-  },
-
-  // ✅ check expiry using access_token_valid_till equivalent
-  isTokenExpired: () => {
-    const token = get().access_token;
-    if (!token) return true;
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      return decoded.exp * 1000 < Date.now();
-    } catch {
-      return true;
-    }
-  },
-
-  logout: () =>
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
       access_token: null,
       refresh_token: null,
       role: null,
       user_id: null,
       user_email: null,
+
+      setTokens: (access, refresh) =>
+        set({ access_token: access, refresh_token: refresh }),
+
+      setFromResponse: (res) =>
+        set({
+          access_token: res.access_token,
+          refresh_token: res.refresh_token,
+          role: res.role,
+          user_id: res.user_id,
+        }),
+
+      decodeToken: () => {
+        const token = get().access_token;
+        if (!token) return null;
+        try {
+          return jwtDecode<DecodedToken>(token);
+        } catch {
+          return null;
+        }
+      },
+
+      isTokenExpired: () => {
+        const token = get().access_token;
+        if (!token) return true;
+        try {
+          const decoded = jwtDecode<DecodedToken>(token);
+          return decoded.exp * 1000 < Date.now();
+        } catch {
+          return true;
+        }
+      },
+
+      logout: () =>
+        set({
+          access_token: null,
+          refresh_token: null,
+          role: null,
+          user_id: null,
+          user_email: null,
+        }),
     }),
-}));
+    {
+      name: "auth-storage", // ✅ AsyncStorage key
+      storage: createJSONStorage(() => AsyncStorage), // ✅ use AsyncStorage
+      partialize: (state) => ({
+        // ✅ only persist these fields
+        access_token: state.access_token,
+        refresh_token: state.refresh_token,
+        role: state.role,
+        user_id: state.user_id,
+        user_email: state.user_email,
+      }),
+    },
+  ),
+);
