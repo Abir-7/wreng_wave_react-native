@@ -28,7 +28,7 @@ export default function LoginScreen() {
       title={"Sign in now"}
       subtitle=""
       resolver={zodResolver(loginSchema)}
-      defaultValues={{ email: "", password: "" }}
+      defaultValues={{ email: "" }}
       onSubmit={onSubmit}
       footer={
         <View style={styles.signupRow}>

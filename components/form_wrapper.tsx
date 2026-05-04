@@ -1,6 +1,4 @@
 import { Colors } from "@/colors/colors";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import {
   DefaultValues,
   FieldValues,
@@ -24,12 +22,12 @@ interface FormWrapperProps<T extends FieldValues> {
   subtitle?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  showBack?: boolean;
+  header?: React.ReactNode;
   submitLabel?: string;
   defaultValues?: DefaultValues<T>;
   isLoading?: boolean;
   resolver?: Resolver<T>;
-  onSubmit: (data: T) => void;
+  onSubmit?: (data: T) => void;
 }
 
 export default function FormWrapper<T extends FieldValues>({
@@ -37,120 +35,110 @@ export default function FormWrapper<T extends FieldValues>({
   subtitle,
   children,
   footer,
-  showBack = true,
+  header,
   submitLabel = "Submit",
   defaultValues,
   isLoading = false,
   resolver,
   onSubmit,
 }: FormWrapperProps<T>) {
-  const router = useRouter();
   const methods = useForm<T>({ resolver, defaultValues });
 
-  return (
-    <FormProvider {...methods}>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#f5f5f5" }}
-        edges={["top", "left", "right"]}
-      >
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+  const content = (
+    <View style={styles.container}>
+      {/* Custom Header */}
+      {header}
+
+      {/* Card */}
+      <View style={styles.card}>
+        {/* Header */}
+        <Text style={styles.title}>{title}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+
+        {/* Children */}
+        <View style={{ marginTop: 20 }}>{children}</View>
+
+        {/* Submit Button */}
+        {onSubmit && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={methods.handleSubmit(onSubmit)}
           >
-            <View style={styles.container}>
-              {/* Back Button */}
-              {showBack && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <TouchableOpacity onPress={() => router.back()}>
-                    <View
-                      style={{
-                        height: 30,
-                        width: 30,
-                        borderRadius: 20,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: Colors.primary,
-                      }}
-                    >
-                      <Ionicons name={"arrow-back"} size={20} color="#fff" />
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={{ fontSize: 25, fontWeight: "bold" }}>
-                    Wrengwave
-                  </Text>
-                </View>
-              )}
+            <Text style={styles.buttonText}>
+              {isLoading ? "Loading..." : submitLabel}
+            </Text>
+          </TouchableOpacity>
+        )}
 
-              {/* Card */}
-              <View style={styles.card}>
-                {/* Header */}
-                <Text style={styles.title}>{title}</Text>
-                {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        {/* Footer */}
+        {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
+      </View>
+    </View>
+  );
 
-                {/* Children */}
-                <View style={{ marginTop: 20 }}>{children}</View>
-
-                {/* Submit Button */}
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={methods.handleSubmit(onSubmit)}
-                >
-                  <Text style={styles.buttonText}>
-                    {isLoading ? "Loading..." : submitLabel}
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Footer */}
-                {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </FormProvider>
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      edges={["bottom", "left", "right"]}
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {onSubmit ? (
+            <FormProvider {...methods}>{content}</FormProvider>
+          ) : (
+            content
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
   },
-  card: {},
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#1a1a1a",
-    marginBottom: 6,
-    marginTop: 90,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 15,
-    color: "#888",
-    marginBottom: 32,
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 24,
   },
   button: {
     backgroundColor: Colors.primary,
-    paddingVertical: 15,
-    borderRadius: 12,
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 20,
+    marginBottom: 10,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
   },
 });

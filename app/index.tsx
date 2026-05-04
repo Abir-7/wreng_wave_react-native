@@ -1,6 +1,5 @@
 import { Colors } from "@/colors/colors";
 import { ValidRole } from "@/store/auth.store";
-
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -22,63 +21,67 @@ export default function RoleScreen() {
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/ui/select_role.jpg")}
-      style={[
-        styles.container,
-        { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
-      ]}
-    >
-      <View style={styles.overlay} />
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Select your role</Text>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        {/* User Card */}
-        <TouchableOpacity
-          onPress={() => {
-            setSelected("customer");
-            handleContinue("customer");
-          }}
-          style={{
-            ...styles.button,
-            backgroundColor:
-              selected === "customer" ? Colors.primary : "transparent",
-            borderColor: "white",
-            borderWidth: selected === "customer" ? 0 : 1,
-          }}
+    <>
+      <ImageBackground
+        source={require("../assets/ui/select_role.jpg")}
+        style={styles.container}
+      >
+        <View style={styles.overlay} />
+        <View
+          style={[
+            styles.content,
+            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+          ]}
         >
-          <Text style={styles.button_text}>User</Text>
-        </TouchableOpacity>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>Select your role</Text>
+          </View>
 
-        {/* Mechanic Card */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {
-            setSelected("mechanic");
-            handleContinue("mechanic");
-          }}
-          style={{
-            ...styles.button,
-            backgroundColor:
-              selected === "mechanic" ? Colors.primary : "transparent",
-            borderColor: "white",
-            borderWidth: selected === "mechanic" ? 0 : 1,
-          }}
-        >
-          <Text style={styles.button_text}>Mechanic</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+          <View style={styles.buttonContainer}>
+            {/* User Card */}
+            <TouchableOpacity
+              onPress={() => {
+                setSelected("customer");
+                handleContinue("customer");
+              }}
+              style={{
+                ...styles.button,
+                backgroundColor:
+                  selected === "customer" ? Colors.primary : "transparent",
+                borderColor: "white",
+                borderWidth: selected === "customer" ? 0 : 1,
+              }}
+            >
+              <Text style={styles.buttonText}>User</Text>
+            </TouchableOpacity>
+
+            {/* Mechanic Card */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => {
+                setSelected("mechanic");
+                handleContinue("mechanic");
+              }}
+              style={{
+                ...styles.button,
+                backgroundColor:
+                  selected === "mechanic" ? Colors.primary : "transparent",
+                borderColor: "white",
+                borderWidth: selected === "mechanic" ? 0 : 1,
+              }}
+            >
+              <Text style={styles.buttonText}>Mechanic</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ImageBackground>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between",
   },
   overlay: {
     position: "absolute",
@@ -88,34 +91,38 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "rgba(0,0,0,0.3)",
   },
+  content: {
+    flex: 1,
+    paddingLeft: 24,
+    paddingRight: 24,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   headerContainer: {
-    gap: 15,
-    width: "80%",
+    width: "100%",
   },
   headerText: {
     color: "white",
-    fontSize: 30,
+    fontSize: 34,
     fontWeight: "bold",
     textAlign: "center",
   },
   buttonContainer: {
-    gap: 15,
-    width: "80%",
+    gap: 16,
+    width: "100%",
   },
   button: {
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 12,
     flexDirection: "row",
-    gap: 10,
     width: "100%",
     alignItems: "center",
-    height: 60,
+    height: 64,
     justifyContent: "center",
   },
-
-  button_text: {
+  buttonText: {
     color: "white",
-    fontWeight: "500",
-    fontSize: 20,
+    fontWeight: "600",
+    fontSize: 22,
   },
 });

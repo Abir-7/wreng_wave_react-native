@@ -48,9 +48,16 @@ export const useLogin = () => {
       });
 
       if (data.role === "customer") {
-        router.replace("/(customer)/home");
+        if (!data.is_user_car_data_complete) {
+          router.replace({
+            pathname: "/customer/add-car",
+            params: { user_id: data.user_id },
+          });
+        } else {
+          router.replace("/customer/home");
+        }
       } else if (data.role === "mechanic") {
-        router.replace("/(mechanic)/home");
+        router.replace("/mechanic/home");
       }
     },
     onError: (error: any) => {
