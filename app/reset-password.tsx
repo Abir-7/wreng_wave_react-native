@@ -1,3 +1,4 @@
+import { useResetPassword } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
@@ -24,12 +25,28 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 const ResetPassword = () => {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: string }>();
+  const { role, user_id, token } = useLocalSearchParams<{
+    role: string;
+    user_id: string;
+    token: string;
+  }>();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  const { mutate: resetPassword, isPending } = useResetPassword();
+
   const onSubmit = (data: ResetPasswordForm) => {
-    console.log("Password Reset Successful", data);
-    setShowSuccessModal(true);
+    resetPassword(
+      {
+        password: data.password,
+        user_id: user_id!,
+        token: token!,
+      },
+      {
+        onSuccess: () => {
+          setShowSuccessModal(true);
+        },
+      },
+    );
   };
 
   const handleModalClose = () => {
@@ -40,6 +57,7 @@ const ResetPassword = () => {
   return (
     <>
       <FormWrapper
+        isLoading={isPending}
         title="New Password"
         subtitle="Set your new password"
         resolver={zodResolver(resetPasswordSchema)}

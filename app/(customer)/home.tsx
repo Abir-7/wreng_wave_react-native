@@ -1,21 +1,18 @@
+import { useLogout } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
-import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function UserHome() {
-  const router = useRouter();
+  const { handleLogout } = useLogout();
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome, User!</Text>
       <Text style={styles.subtitle}>This is your dashboard.</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.replace("/")}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
     </SafeAreaView>

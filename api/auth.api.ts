@@ -112,14 +112,7 @@ export const useVerifyUser = () => {
         text1: "Success",
         text2: "You are verified. You can now login.",
       });
-      if (payload.flow === "forgot-password") {
-        router.push({
-          pathname: "/reset-password",
-          params: { role: payload.role },
-        });
-      } else {
-        router.push({ pathname: "/login", params: { role: payload.role } });
-      }
+      router.push({ pathname: "/login", params: { role: payload.role } });
     },
     onError: (error: any) => {
       const errorMessage =
@@ -181,7 +174,7 @@ export const useForgotPassword = () => {
       Toast.show({
         type: "success",
         text1: "Success",
-        text2: "Code resent successfully.",
+        text2: "Verification code sent to your email.",
       });
       router.push({
         pathname: "/otp",
@@ -220,7 +213,7 @@ export const useVerifyResetPassword = () => {
       );
       return data;
     },
-    onSuccess: (_, payload) => {
+    onSuccess: (data, payload) => {
       Toast.show({
         type: "success",
         text1: "Success",
@@ -228,7 +221,7 @@ export const useVerifyResetPassword = () => {
       });
       router.replace({
         pathname: "/reset-password",
-        params: { role: payload.role },
+        params: { role: payload.role, user_id: data.user_id, token: data.token },
       });
     },
     onError: (error: any) => {
@@ -254,6 +247,7 @@ export const useResetPassword = () => {
         {
           user_id: payload.user_id,
           password: payload.password,
+          token: payload.token,
         },
       );
       return data;
@@ -264,7 +258,6 @@ export const useResetPassword = () => {
         text1: "Success",
         text2: "Password reset successfully.",
       });
-      router.replace("/");
     },
     onError: (error: any) => {
       const errorMessage =
