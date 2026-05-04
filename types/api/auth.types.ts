@@ -82,9 +82,20 @@ export type ResetPasswordPayload = {
   user_id: string;
   token: string;
   password: string;
+  role: ValidRole;
 };
 
 export type ResetPasswordResponse = {
+  message: string;
+};
+
+export type UpdateLocationPayload = {
+  user_id: string;
+  latitude: number;
+  longitude: number;
+};
+
+export type UpdateLocationResponse = {
   message: string;
 };
 

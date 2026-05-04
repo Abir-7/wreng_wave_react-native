@@ -11,6 +11,8 @@ import {
   ResetPasswordResponse,
   SignupRequest,
   SignupResponse,
+  UpdateLocationPayload,
+  UpdateLocationResponse,
   VerifyResetPayload,
   VerifyResetResponse,
   VerifyUserPayload,
@@ -110,9 +112,12 @@ export const useVerifyUser = () => {
       Toast.show({
         type: "success",
         text1: "Success",
-        text2: "You are verified. You can now login.",
+        text2: "You are verified. Please allow location access.",
       });
-      router.push({ pathname: "/login", params: { role: payload.role } });
+      router.push({
+        pathname: "/location-permission",
+        params: { role: payload.role, user_id: payload.user_id },
+      });
     },
     onError: (error: any) => {
       const errorMessage =
@@ -221,7 +226,11 @@ export const useVerifyResetPassword = () => {
       });
       router.replace({
         pathname: "/reset-password",
-        params: { role: payload.role, user_id: data.user_id, token: data.token },
+        params: {
+          role: payload.role,
+          user_id: data.user_id,
+          token: data.token,
+        },
       });
     },
     onError: (error: any) => {
@@ -252,7 +261,8 @@ export const useResetPassword = () => {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, payload) => {
+      router.replace({ pathname: "/login", params: { role: payload.role } });
       Toast.show({
         type: "success",
         text1: "Success",
@@ -268,6 +278,34 @@ export const useResetPassword = () => {
         text2: errorMessage,
       });
       console.error("Verification failed:", errorMessage);
+    },
+  });
+};
+
+export const useUpdateLocation = () => {
+  return useMutation({
+    mutationFn: async (payload: UpdateLocationPayload) => {
+      const { data } = await api.post<UpdateLocationResponse>(
+        "/common/locations",
+        payload,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      Toast.show({
+        type: "success",
+        text1: "Location Updated",
+        text2: "Your location has been saved.",
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error.response?.data?.message || "Could not update location.";
+      Toast.show({
+        type: "error",
+        text1: "Location Error",
+        text2: errorMessage,
+      });
     },
   });
 };

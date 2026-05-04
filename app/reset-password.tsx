@@ -2,6 +2,7 @@ import { useResetPassword } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import { ValidRole } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -40,6 +41,7 @@ const ResetPassword = () => {
         password: data.password,
         user_id: user_id!,
         token: token!,
+        role: role as ValidRole,
       },
       {
         onSuccess: () => {
