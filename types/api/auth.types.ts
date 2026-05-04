@@ -28,6 +28,8 @@ export type LoginResponse = {
   user_id: string;
   access_token_valid_till: number;
   role: ValidRole;
+  is_mechanic_data_complete: boolean;
+  is_user_car_data_complete: boolean;
 };
 
 export type SignupResponse = {
