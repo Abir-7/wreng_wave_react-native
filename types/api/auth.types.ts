@@ -31,8 +31,61 @@ export type LoginResponse = {
 };
 
 export type SignupResponse = {
-  message: string;
+  user_id: string;
   email: string;
+  role: ValidRole;
+};
+
+export type VerifyUserPayload = {
+  user_id: string;
+  code: string;
+  flow: string;
+  role: ValidRole;
+};
+
+export type VerifyUserResponse = {
+  user_id: string;
+  role: ValidRole;
+};
+
+export type ResendOtpPayload = {
+  user_id: string;
+};
+
+export type ResendOtpResponse = {
+  message: string;
+};
+
+export type ForgotPasswordPayload = {
+  email: string;
+  role: ValidRole;
+};
+
+export type ForgotPasswordResponse = {
+  message: string;
+  user_id: string;
+};
+
+export type VerifyResetPayload = {
+  user_id: string;
+  code: string;
+  role: ValidRole;
+};
+
+export type VerifyResetResponse = {
+  message: string;
+  user_id: string;
+  token: string;
+};
+
+export type ResetPasswordPayload = {
+  user_id: string;
+  token: string;
+  password: string;
+};
+
+export type ResetPasswordResponse = {
+  message: string;
 };
 
 export type DecodedToken = {

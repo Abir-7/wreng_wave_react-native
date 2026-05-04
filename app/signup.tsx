@@ -1,16 +1,11 @@
+import { useSignup } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 
 const signupSchema = z
@@ -32,20 +27,15 @@ type SignupForm = z.infer<typeof signupSchema>;
 const Signup = () => {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role: "customer" | "mechanic" }>();
-
+  const { mutate: signup, isPending } = useSignup();
   const onSubmit = (data: SignupForm) => {
-    if (role === "mechanic") {
-      ToastAndroid.show("Failed to create account", ToastAndroid.SHORT);
-      router.push({ pathname: "/", params: { role: "customer" } });
-      return;
-    }
-    router.push({ pathname: "/otp", params: { role: role } });
     const data_with_role = { ...data, role: role };
-    console.log(data_with_role);
+    signup(data_with_role);
   };
 
   return (
     <FormWrapper
+      isLoading={isPending}
       title={"Sign up now"}
       subtitle=""
       resolver={zodResolver(signupSchema)}

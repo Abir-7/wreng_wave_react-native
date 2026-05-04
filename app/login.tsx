@@ -17,13 +17,14 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginScreen() {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role: "customer" | "mechanic" }>();
-  const { mutate: login, isPending, error } = useLogin();
+  const { mutate: login, isPending } = useLogin();
   const onSubmit = (data: LoginForm) => {
     login({ user_email: data.email, password: data.password });
   };
 
   return (
     <FormWrapper
+      isLoading={isPending}
       title={"Sign in now"}
       subtitle=""
       resolver={zodResolver(loginSchema)}

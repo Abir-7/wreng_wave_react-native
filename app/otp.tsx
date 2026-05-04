@@ -1,7 +1,13 @@
+import {
+  useResendCode,
+  useVerifyResetPassword,
+  useVerifyUser,
+} from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
+import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -44,20 +50,35 @@ const OtpBoxInput = () => {
 };
 
 const Otp = () => {
-  const router = useRouter();
-  const { role, flow } = useLocalSearchParams<{ role: string; flow?: string }>();
+  const { user_id, role, flow } = useLocalSearchParams<{
+    user_id: string;
+    role: string;
+    flow?: string;
+  }>();
+  const { mutate: verifyUser, isPending } = useVerifyUser();
+  const { mutate: resendCode } = useResendCode();
+  const { mutate: verifyResetPassword } = useVerifyResetPassword();
 
   const onSubmit = (data: OtpForm) => {
-    console.log("OTP Submitted:", data.otp);
     if (flow === "forgot-password") {
-      router.push({ pathname: "/reset-password", params: { role } });
+      verifyResetPassword({
+        code: data.otp,
+        user_id: user_id,
+        role: role as ValidRole,
+      });
     } else {
-      router.push({ pathname: "/login", params: { role } });
+      verifyUser({
+        code: data.otp,
+        user_id: user_id,
+        role: role as ValidRole,
+        flow: flow || "",
+      });
     }
   };
 
   return (
     <FormWrapper
+      isLoading={isPending}
       title="Verify your email"
       subtitle="We have sent a 6-digit code to your email"
       resolver={zodResolver(otpSchema)}
@@ -69,7 +90,7 @@ const Otp = () => {
 
       <View style={styles.resendRow}>
         <Text style={styles.resendText}>Didn&apos;t receive the code? </Text>
-        <TouchableOpacity onPress={() => console.log("Resend OTP")}>
+        <TouchableOpacity onPress={() => resendCode({ user_id })}>
           <Text style={styles.resendLink}>Resend</Text>
         </TouchableOpacity>
       </View>

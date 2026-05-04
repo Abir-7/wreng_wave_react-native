@@ -27,6 +27,7 @@ interface FormWrapperProps<T extends FieldValues> {
   showBack?: boolean;
   submitLabel?: string;
   defaultValues?: DefaultValues<T>;
+  isLoading?: boolean;
   resolver?: Resolver<T>;
   onSubmit: (data: T) => void;
 }
@@ -39,6 +40,7 @@ export default function FormWrapper<T extends FieldValues>({
   showBack = true,
   submitLabel = "Submit",
   defaultValues,
+  isLoading = false,
   resolver,
   onSubmit,
 }: FormWrapperProps<T>) {
@@ -47,7 +49,10 @@ export default function FormWrapper<T extends FieldValues>({
 
   return (
     <FormProvider {...methods}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }} edges={["top", "left", "right"]}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: "#f5f5f5" }}
+        edges={["top", "left", "right"]}
+      >
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -61,7 +66,11 @@ export default function FormWrapper<T extends FieldValues>({
               {/* Back Button */}
               {showBack && (
                 <View
-                  style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
                 >
                   <TouchableOpacity onPress={() => router.back()}>
                     <View
@@ -97,7 +106,9 @@ export default function FormWrapper<T extends FieldValues>({
                   style={styles.button}
                   onPress={methods.handleSubmit(onSubmit)}
                 >
-                  <Text style={styles.buttonText}>{submitLabel}</Text>
+                  <Text style={styles.buttonText}>
+                    {isLoading ? "Loading..." : submitLabel}
+                  </Text>
                 </TouchableOpacity>
 
                 {/* Footer */}
