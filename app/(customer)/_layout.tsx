@@ -1,6 +1,6 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/colors/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 
 export default function CustomerTabs() {
   return (
@@ -8,7 +8,7 @@ export default function CustomerTabs() {
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: "#888",
-        headerShown: true,
+        headerShown: false,
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: "#eee",

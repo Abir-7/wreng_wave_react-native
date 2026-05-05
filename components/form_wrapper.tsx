@@ -28,6 +28,7 @@ interface FormWrapperProps<T extends FieldValues> {
   isLoading?: boolean;
   resolver?: Resolver<T>;
   onSubmit?: (data: T) => void;
+  headerShown?: boolean;
 }
 
 export default function FormWrapper<T extends FieldValues>({
@@ -41,6 +42,7 @@ export default function FormWrapper<T extends FieldValues>({
   isLoading = false,
   resolver,
   onSubmit,
+  headerShown = true,
 }: FormWrapperProps<T>) {
   const methods = useForm<T>({ resolver, defaultValues });
   const insets = useSafeAreaInsets();
@@ -87,6 +89,7 @@ export default function FormWrapper<T extends FieldValues>({
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
+            paddingTop: headerShown ? 0 : insets.top,
             paddingBottom: insets.bottom + 20,
           }}
           keyboardShouldPersistTaps="handled"
@@ -107,6 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 10,
   },
   card: {
     backgroundColor: "#fff",
@@ -129,7 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     marginTop: 20,
-
+    marginBottom: 10,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

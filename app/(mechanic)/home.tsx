@@ -1,16 +1,14 @@
-import { useLogout } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function MechanicHome() {
-  const { handleLogout } = useLogout();
-
   return (
     <FormWrapper
       title="Dashboard"
       subtitle="Overview of your business"
+      headerShown={false}
     >
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
@@ -22,10 +20,6 @@ export default function MechanicHome() {
           <Text style={styles.statLabel}>Earnings</Text>
         </View>
       </View>
-
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
     </FormWrapper>
   );
 }

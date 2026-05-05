@@ -1,3 +1,4 @@
+import { Colors } from "@/colors/colors";
 import { useAuthStore } from "@/store/auth.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
@@ -75,7 +76,21 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <Stack screenOptions={{}}>
+        <Stack
+          screenOptions={{
+            headerShown: true,
+            headerStyle: {
+              backgroundColor: "#fff",
+            },
+            headerTintColor: Colors.primary,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 18,
+            },
+            headerShadowVisible: false,
+            headerTitleAlign: "center",
+          }}
+        >
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ title: "Login" }} />
           <Stack.Screen name="signup" options={{ title: "Create Account" }} />

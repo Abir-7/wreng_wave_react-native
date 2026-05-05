@@ -8,7 +8,7 @@ export default function MechanicTabs() {
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: "#888",
-        headerShown: true,
+        headerShown: false,
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: "#eee",

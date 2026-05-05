@@ -3,7 +3,11 @@ import FormWrapper from "@/components/form_wrapper";
 
 export default function MechanicRequestsScreen() {
   return (
-    <FormWrapper title="Service Requests" subtitle="Pending and completed jobs">
+    <FormWrapper 
+      title="Service Requests" 
+      subtitle="Pending and completed jobs"
+      headerShown={false}
+    >
       <View>
         <Text>Service Requests Coming Soon...</Text>
       </View>

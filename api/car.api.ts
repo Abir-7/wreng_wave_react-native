@@ -3,8 +3,9 @@ import {
   CarDataPayload,
   CarDataResponse,
   CarImageUploadResponse,
+  MyCarsResponse,
 } from "@/types/api/car.types";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 
 export const useUploadCarImage = () => {
@@ -57,6 +58,16 @@ export const useAddCarData = () => {
         text1: "Error",
         text2: errorMessage,
       });
+    },
+  });
+};
+
+export const useGetMyCars = () => {
+  return useQuery({
+    queryKey: ["my-cars"],
+    queryFn: async (): Promise<MyCarsResponse[]> => {
+      const { data } = await api.get<MyCarsResponse[]>("/customer/my-cars");
+      return data;
     },
   });
 };

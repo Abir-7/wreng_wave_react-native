@@ -1,4 +1,5 @@
 import { useLogout } from "@/api/auth.api";
+import { useGetMyCars } from "@/api/car.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import React from "react";
@@ -6,9 +7,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function UserHome() {
   const { handleLogout } = useLogout();
-
+  const { data } = useGetMyCars();
+  console.log(data);
   return (
-    <FormWrapper title="Welcome, User!" subtitle="This is your dashboard.">
+    <FormWrapper
+      title="Welcome, User!"
+      subtitle="This is your dashboard."
+      headerShown={false}
+    >
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
