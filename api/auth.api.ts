@@ -45,6 +45,8 @@ export const useLogin = () => {
         role: data.role as ValidRole,
         access_token: data.access_token,
         refresh_token: data.refresh_token,
+        is_user_car_data_complete: data.is_user_car_data_complete,
+        is_mechanic_data_complete: data.is_mechanic_data_complete,
       });
 
       if (data.role === "customer") {

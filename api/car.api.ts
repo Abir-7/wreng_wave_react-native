@@ -11,7 +11,7 @@ export const useUploadCarImage = () => {
   return useMutation({
     mutationFn: async (formData: FormData): Promise<CarImageUploadResponse> => {
       const { data } = await api.post<CarImageUploadResponse>(
-        "/common/upload-image",
+        "/customer/add-cars-image",
         formData,
         {
           headers: {
@@ -36,7 +36,10 @@ export const useUploadCarImage = () => {
 export const useAddCarData = () => {
   return useMutation({
     mutationFn: async (payload: CarDataPayload): Promise<CarDataResponse> => {
-      const { data } = await api.post<CarDataResponse>("/customer/cars", payload);
+      const { data } = await api.post<CarDataResponse>(
+        "/customer/add-cars-data",
+        payload,
+      );
       return data;
     },
     onSuccess: () => {

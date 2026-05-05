@@ -5,6 +5,7 @@ import {
 } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
+import GlobalLoading from "@/components/global_loading";
 import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams } from "expo-router";
@@ -55,9 +56,9 @@ const Otp = () => {
     role: string;
     flow?: string;
   }>();
-  const { mutate: verifyUser, isPending } = useVerifyUser();
-  const { mutate: resendCode } = useResendCode();
-  const { mutate: verifyResetPassword } = useVerifyResetPassword();
+  const { mutate: verifyUser, isPending: isVerifying } = useVerifyUser();
+  const { mutate: resendCode, isPending: isResending } = useResendCode();
+  const { mutate: verifyResetPassword, isPending: isVerifyingReset } = useVerifyResetPassword();
 
   const onSubmit = (data: OtpForm) => {
     if (flow === "forgot-password") {
@@ -76,25 +77,29 @@ const Otp = () => {
     }
   };
 
-  return (
-    <FormWrapper
-      isLoading={isPending}
-      title="Verify your email"
-      subtitle="We have sent a 6-digit code to your email"
-      resolver={zodResolver(otpSchema)}
-      defaultValues={{ otp: "" }}
-      onSubmit={onSubmit}
-      submitLabel="Verify"
-    >
-      <OtpBoxInput />
+  const isLoading = isVerifying || isResending || isVerifyingReset;
 
-      <View style={styles.resendRow}>
-        <Text style={styles.resendText}>Didn&apos;t receive the code? </Text>
-        <TouchableOpacity onPress={() => resendCode({ user_id })}>
-          <Text style={styles.resendLink}>Resend</Text>
-        </TouchableOpacity>
-      </View>
-    </FormWrapper>
+  return (
+    <>
+      <GlobalLoading visible={isLoading} message="Verifying..." />
+      <FormWrapper
+        title="Verify your email"
+        subtitle="We have sent a 6-digit code to your email"
+        resolver={zodResolver(otpSchema)}
+        defaultValues={{ otp: "" }}
+        onSubmit={onSubmit}
+        submitLabel="Verify"
+      >
+        <OtpBoxInput />
+
+        <View style={styles.resendRow}>
+          <Text style={styles.resendText}>Didn&apos;t receive the code? </Text>
+          <TouchableOpacity onPress={() => resendCode({ user_id })}>
+            <Text style={styles.resendLink}>Resend</Text>
+          </TouchableOpacity>
+        </View>
+      </FormWrapper>
+    </>
   );
 };
 

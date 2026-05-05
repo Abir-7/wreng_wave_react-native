@@ -2,6 +2,7 @@ import { useSignup } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import GlobalLoading from "@/components/global_loading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -10,7 +11,7 @@ import { z } from "zod";
 
 const signupSchema = z
   .object({
-    email: z.email("Invalid email address"),
+    email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     full_name: z.string().min(3, "Name must be at least 3 characters"),
     confirm_password: z
@@ -34,59 +35,61 @@ const Signup = () => {
   };
 
   return (
-    <FormWrapper
-      isLoading={isPending}
-      title={"Sign up now"}
-      subtitle=""
-      resolver={zodResolver(signupSchema)}
-      defaultValues={{
-        email: "",
-        password: "",
-        full_name: "",
-        confirm_password: "",
-      }}
-      onSubmit={onSubmit}
-      footer={
-        <View style={styles.signupRow}>
-          <Text style={styles.signupText}>Already have an account? </Text>
-          <TouchableOpacity
-            onPress={() =>
-              router.push({ pathname: "/login", params: { role } })
-            }
-          >
-            <Text style={styles.signupLink}>Login</Text>
-          </TouchableOpacity>
-        </View>
-      }
-    >
-      <InputField<SignupForm>
-        name="full_name"
-        label="Name"
-        placeholder="Enter your name"
-        keyboardType="default"
-        autoCapitalize="none"
-      />
-      <InputField<SignupForm>
-        name="email"
-        label="Email"
-        placeholder="Enter your email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+    <>
+      <GlobalLoading visible={isPending} message="Creating account..." />
+      <FormWrapper
+        title={"Sign up now"}
+        subtitle=""
+        resolver={zodResolver(signupSchema)}
+        defaultValues={{
+          email: "",
+          password: "",
+          full_name: "",
+          confirm_password: "",
+        }}
+        onSubmit={onSubmit}
+        footer={
+          <View style={styles.signupRow}>
+            <Text style={styles.signupText}>Already have an account? </Text>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({ pathname: "/login", params: { role } })
+              }
+            >
+              <Text style={styles.signupLink}>Login</Text>
+            </TouchableOpacity>
+          </View>
+        }
+      >
+        <InputField<SignupForm>
+          name="full_name"
+          label="Name"
+          placeholder="Enter your name"
+          keyboardType="default"
+          autoCapitalize="none"
+        />
+        <InputField<SignupForm>
+          name="email"
+          label="Email"
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <InputField<SignupForm>
-        name="password"
-        label="Password"
-        placeholder="Enter your password"
-        secureTextEntry
-      />
-      <InputField<SignupForm>
-        name="confirm_password"
-        label="Confirm Password"
-        placeholder="Enter your password"
-        secureTextEntry
-      />
-    </FormWrapper>
+        <InputField<SignupForm>
+          name="password"
+          label="Password"
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+        <InputField<SignupForm>
+          name="confirm_password"
+          label="Confirm Password"
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+      </FormWrapper>
+    </>
   );
 };
 

@@ -2,12 +2,14 @@ import { useAddMechanicData, useUploadMechanicDocuments } from "@/api/mechanic.a
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import GlobalLoading from "@/components/global_loading";
+import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Image, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
 import { z } from "zod";
 
@@ -79,6 +81,7 @@ export default function MechanicCompleteProfileScreen() {
     const router = useRouter();
     const { user_id } = useLocalSearchParams<{ user_id: string }>();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("Please wait...");
   
     const { mutateAsync: uploadDocuments } = useUploadMechanicDocuments();
     const { mutateAsync: addMechanicData } = useAddMechanicData();
@@ -88,6 +91,7 @@ export default function MechanicCompleteProfileScreen() {
         setIsSubmitting(true);
   
         // 1. Prepare FormData for all documents
+        setLoadingMessage("Uploading documents...");
         const formData = new FormData();
         
         const appendFile = (uri: string, fieldName: string) => {
@@ -100,7 +104,11 @@ export default function MechanicCompleteProfileScreen() {
         appendFile(data.profile_image, "profile_image");
         appendFile(data.national_id_image, "national_id_image");
         data.certificate_images.forEach((uri) => {
-          appendFile(uri, "certificate_images"); // Using same key for multiple files
+          formData.append("certificate_images", { 
+            uri, 
+            name: uri.split("/").pop(), 
+            type: `image/${uri.split(".").pop()}` 
+          } as any);
         });
 
         // 2. Upload all documents in one API call
@@ -111,6 +119,7 @@ export default function MechanicCompleteProfileScreen() {
         } = await uploadDocuments(formData);
   
         // 3. Submit text fields + returned URLs to the second API
+        setLoadingMessage("Saving profile details...");
         await addMechanicData({
           user_id: user_id!,
           shop_name: data.shop_name,
@@ -122,8 +131,11 @@ export default function MechanicCompleteProfileScreen() {
           national_id_image: national_id_image_url,
           certificate_images: certificate_image_urls,
         });
+
+        // ✅ Update store flag
+        useAuthStore.setState({ is_mechanic_data_complete: true });
   
-        router.replace("/mechanic/home");
+        router.replace("/(mechanic)/home");
       } catch (error) {
         console.error("Failed to complete mechanic profile:", error);
       } finally {
@@ -132,34 +144,38 @@ export default function MechanicCompleteProfileScreen() {
     };
   
     return (
-      <FormWrapper
-        isLoading={isSubmitting}
-        title="Complete Profile"
-        subtitle="Fill in your details to continue"
-        resolver={zodResolver(mechanicSchema)}
-        defaultValues={{
-          shop_name: "",
-          initial_charge: "",
-          year_of_experience: "",
-          specialist: [],
-          service_area: "",
-          profile_image: "",
-          national_id_image: "",
-          certificate_images: [],
-        }}
-        onSubmit={onSubmit}
-      >
-        <MechanicFormContent />
-      </FormWrapper>
+      <>
+        <GlobalLoading visible={isSubmitting} message={loadingMessage} />
+        <FormWrapper
+          title="Complete Profile"
+          subtitle="Fill in your details to continue"
+          resolver={zodResolver(mechanicSchema)}
+          defaultValues={{
+            shop_name: "",
+            initial_charge: "",
+            year_of_experience: "",
+            specialist: [],
+            service_area: "",
+            profile_image: "",
+            national_id_image: "",
+            certificate_images: [],
+          }}
+          onSubmit={onSubmit}
+        >
+          <MechanicFormContent />
+        </FormWrapper>
+      </>
     );
 }
 
 const MechanicFormContent = () => {
-    const { setValue, watch } = useFormContext<MechanicForm>();
-    const profileImage = watch("profile_image");
-    const nationalIdImage = watch("national_id_image");
-    const certificateImages = watch("certificate_images");
-    const specialists = watch("specialist") || [];
+    const { setValue, control, getValues } = useFormContext<MechanicForm>();
+    
+    const profileImage = useWatch({ control, name: "profile_image" });
+    const nationalIdImage = useWatch({ control, name: "national_id_image" });
+    const certificateImages = useWatch({ control, name: "certificate_images" }) || [];
+    const specialists = useWatch({ control, name: "specialist" }) || [];
+    
     const [tempSpec, setTempSpec] = useState("");
 
     const handlePickImage = async (field: keyof MechanicForm, multiple = false) => {
@@ -171,11 +187,20 @@ const MechanicFormContent = () => {
         });
     
         if (!result.canceled) {
+          const uri = result.assets[0].uri;
           if (multiple) {
-            const current = (watch(field) as string[]) || [];
-            setValue(field, [...current, result.assets[0].uri] as any, { shouldValidate: true });
+            const current = (getValues(field) as string[]) || [];
+            setValue(field, [...current, uri] as any, { 
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true
+            });
           } else {
-            setValue(field, result.assets[0].uri as any, { shouldValidate: true });
+            setValue(field, uri as any, { 
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true
+            });
           }
         }
       };
@@ -216,7 +241,7 @@ const MechanicFormContent = () => {
                 multiple 
                 onPick={() => handlePickImage("certificate_images", true)} 
                 onRemove={(index) => {
-                    const current = watch("certificate_images");
+                    const current = (getValues("certificate_images") as string[]) || [];
                     setValue("certificate_images", current.filter((_, i) => i !== index), { shouldValidate: true });
                 }}
             />

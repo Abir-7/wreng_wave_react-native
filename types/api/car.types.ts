@@ -1,18 +1,18 @@
 export type CarImageUploadResponse = {
-  image_url: string;
+  image_data_id: string;
 };
 
-export type CarDataPayload = {
-  user_id: string;
-  make: string;
+export type CarItemPayload = {
+  brand: string;
   model: string;
   year: number;
   license_plate: string;
-  color: string;
-  image_url: string;
+  tag_number: string;
+  car_image_id: string;
 };
+
+export type CarDataPayload = CarItemPayload[];
 
 export type CarDataResponse = {
   message: string;
-  car_id: string;
 };

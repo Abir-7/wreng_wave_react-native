@@ -9,9 +9,11 @@ import Toast from "react-native-toast-message";
 
 export const useUploadMechanicDocuments = () => {
   return useMutation({
-    mutationFn: async (formData: FormData): Promise<MechanicDocumentResponse> => {
+    mutationFn: async (
+      formData: FormData,
+    ): Promise<MechanicDocumentResponse> => {
       const { data } = await api.post<MechanicDocumentResponse>(
-        "/mechanic/upload-documents",
+        "/mechanic/save-mechanic-image-data",
         formData,
         {
           headers: {
@@ -39,7 +41,7 @@ export const useAddMechanicData = () => {
       payload: MechanicProfilePayload,
     ): Promise<MechanicProfileResponse> => {
       const { data } = await api.post<MechanicProfileResponse>(
-        "/mechanic/details",
+        "/mechanic/save-mechanic-data",
         payload,
       );
       return data;

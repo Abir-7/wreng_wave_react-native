@@ -2,13 +2,24 @@ import { useLogout } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function UserHome() {
   const { handleLogout } = useLogout();
 
   return (
     <FormWrapper title="Welcome, User!" subtitle="This is your dashboard.">
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>Active Requests</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>Total Cars</Text>
+        </View>
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
@@ -17,29 +28,36 @@ export default function UserHome() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 20,
+  statsContainer: {
+    flexDirection: "row",
+    gap: 15,
+    marginBottom: 30,
   },
-  title: {
+  statCard: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+    padding: 20,
+    borderRadius: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#eee",
+  },
+  statNumber: {
     fontSize: 24,
     fontWeight: "bold",
     color: Colors.primary,
-    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 16,
+  statLabel: {
+    fontSize: 12,
     color: "#666",
-    marginBottom: 30,
+    marginTop: 5,
   },
   button: {
     backgroundColor: Colors.secondary,
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 8,
+    alignSelf: "center",
   },
   buttonText: {
     color: "#fff",

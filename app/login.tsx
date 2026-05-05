@@ -2,13 +2,14 @@ import { useLogin } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import GlobalLoading from "@/components/global_loading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -23,51 +24,53 @@ export default function LoginScreen() {
   };
 
   return (
-    <FormWrapper
-      isLoading={isPending}
-      title={"Sign in now"}
-      subtitle=""
-      resolver={zodResolver(loginSchema)}
-      defaultValues={{ email: "" }}
-      onSubmit={onSubmit}
-      footer={
-        <View style={styles.signupRow}>
-          <Text style={styles.signupText}>Don&apos;t have an account? </Text>
-          <TouchableOpacity
-            onPress={() =>
-              router.push({ pathname: "/signup", params: { role } })
-            }
-          >
-            <Text style={styles.signupLink}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      }
-    >
-      <InputField<LoginForm>
-        name="email"
-        label="Email"
-        placeholder="Enter your email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <InputField<LoginForm>
-        name="password"
-        label="Password"
-        placeholder="Enter your password"
-        secureTextEntry
-      />
-
-      {/* Forgot Password Link */}
-      <TouchableOpacity
-        onPress={() =>
-          router.push({ pathname: "/forgot-password", params: { role } })
+    <>
+      <GlobalLoading visible={isPending} message="Signing in..." />
+      <FormWrapper
+        title={"Sign in now"}
+        subtitle=""
+        resolver={zodResolver(loginSchema)}
+        defaultValues={{ email: "" }}
+        onSubmit={onSubmit}
+        footer={
+          <View style={styles.signupRow}>
+            <Text style={styles.signupText}>Don&apos;t have an account? </Text>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({ pathname: "/signup", params: { role } })
+              }
+            >
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
         }
-        style={styles.forgotPasswordContainer}
       >
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
-    </FormWrapper>
+        <InputField<LoginForm>
+          name="email"
+          label="Email"
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <InputField<LoginForm>
+          name="password"
+          label="Password"
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+
+        {/* Forgot Password Link */}
+        <TouchableOpacity
+          onPress={() =>
+            router.push({ pathname: "/forgot-password", params: { role } })
+          }
+          style={styles.forgotPasswordContainer}
+        >
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+      </FormWrapper>
+    </>
   );
 }
 

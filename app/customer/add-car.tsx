@@ -2,23 +2,25 @@ import { useAddCarData, useUploadCarImage } from "@/api/car.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import GlobalLoading from "@/components/global_loading";
+import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 
 const carItemSchema = z.object({
-  make: z.string().min(2, "Make must be at least 2 characters"),
+  brand: z.string().min(2, "Brand must be at least 2 characters"),
   model: z.string().min(2, "Model must be at least 2 characters"),
   year: z.string().regex(/^\d{4}$/, "Year must be 4 digits"),
   license_plate: z
     .string()
     .min(3, "License plate must be at least 3 characters"),
-  color: z.string().min(3, "Color must be at least 3 characters"),
+  tag_number: z.string().min(1, "Tag number is required"),
   image: z.string().min(1, "Please select a car image"),
 });
 
@@ -37,8 +39,8 @@ const CarItem = ({
   remove: (index: number) => void;
   isLast: boolean;
 }) => {
-  const { setValue, watch } = useFormContext<CarForm>();
-  const image = watch(`cars.${index}.image`);
+  const { setValue, control } = useFormContext<CarForm>();
+  const image = useWatch({ control, name: `cars.${index}.image` });
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -51,6 +53,8 @@ const CarItem = ({
     if (!result.canceled) {
       setValue(`cars.${index}.image`, result.assets[0].uri, {
         shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
       });
     }
   };
@@ -78,8 +82,8 @@ const CarItem = ({
       </TouchableOpacity>
 
       <InputField<CarForm>
-        name={`cars.${index}.make`}
-        label="Make"
+        name={`cars.${index}.brand`}
+        label="Brand"
         placeholder="e.g. Toyota"
       />
       <InputField<CarForm>
@@ -99,9 +103,9 @@ const CarItem = ({
         placeholder="e.g. ABC-1234"
       />
       <InputField<CarForm>
-        name={`cars.${index}.color`}
-        label="Color"
-        placeholder="e.g. White"
+        name={`cars.${index}.tag_number`}
+        label="Tag Number"
+        placeholder="e.g. 123"
       />
       {!isLast && <View style={styles.divider} />}
     </View>
@@ -130,11 +134,11 @@ const CarListContent = () => {
         style={styles.addMoreButton}
         onPress={() =>
           append({
-            make: "",
+            brand: "",
             model: "",
             year: "",
             license_plate: "",
-            color: "",
+            tag_number: "",
             image: "",
           })
         }
@@ -148,17 +152,23 @@ const CarListContent = () => {
 
 const AddCar = () => {
   const router = useRouter();
-  const { user_id } = useLocalSearchParams<{ user_id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Please wait...");
+  const { user_id } = useLocalSearchParams<{ user_id: string }>();
 
   const { mutateAsync: uploadImage } = useUploadCarImage();
-  const { mutateAsync: addCarAsync } = useAddCarData();
+  const { mutateAsync: addCarBulkAsync } = useAddCarData();
 
   const onSubmit = async (data: CarForm) => {
     try {
       setIsSubmitting(true);
 
-      for (const car of data.cars) {
+      const carsPayload = [];
+
+      for (let i = 0; i < data.cars.length; i++) {
+        const car = data.cars[i];
+        setLoadingMessage(`Uploading image for car #${i + 1}...`);
+        
         // 1. Prepare form data for image upload
         const formData = new FormData();
         const filename = car.image.split("/").pop();
@@ -171,22 +181,28 @@ const AddCar = () => {
           type,
         } as any);
 
-        // 2. Upload image
-        const { image_url } = await uploadImage(formData);
+        // 2. Upload image and get image_data_id
+        const { image_data_id } = await uploadImage(formData);
 
-        // 3. Submit car data with image URL
-        await addCarAsync({
-          user_id: user_id!,
-          make: car.make,
+        // 3. Add to bulk payload
+        carsPayload.push({
+          brand: car.brand,
           model: car.model,
           year: parseInt(car.year),
           license_plate: car.license_plate,
-          color: car.color,
-          image_url: image_url,
+          tag_number: car.tag_number,
+          car_image_id: image_data_id,
         });
       }
 
-      router.replace("/customer/home");
+      setLoadingMessage("Saving car details...");
+      // 4. Submit bulk car data
+      await addCarBulkAsync(carsPayload);
+
+      // ✅ Update store flag
+      useAuthStore.setState({ is_user_car_data_complete: true });
+
+      router.replace("/(customer)/home");
     } catch (error) {
       console.error("Failed to add car(s):", error);
     } finally {
@@ -195,28 +211,30 @@ const AddCar = () => {
   };
 
   return (
-    <FormWrapper
-      isLoading={isSubmitting}
-      title="Add Your Cars"
-      subtitle="Please provide your car details to continue"
-      resolver={zodResolver(carSchema)}
-      defaultValues={{
-        cars: [
-          {
-            make: "",
-            model: "",
-            year: "",
-            license_plate: "",
-            color: "",
-            image: "",
-          },
-        ],
-      }}
-      onSubmit={onSubmit}
-      submitLabel="Submit All Cars"
-    >
-      <CarListContent />
-    </FormWrapper>
+    <>
+      <GlobalLoading visible={isSubmitting} message={loadingMessage} />
+      <FormWrapper
+        title="Add Your Cars"
+        subtitle="Please provide your car details to continue"
+        resolver={zodResolver(carSchema)}
+        defaultValues={{
+          cars: [
+            {
+              brand: "",
+              model: "",
+              year: "",
+              license_plate: "",
+              tag_number: "",
+              image: "",
+            },
+          ],
+        }}
+        onSubmit={onSubmit}
+        submitLabel="Submit All Cars"
+      >
+        <CarListContent />
+      </FormWrapper>
+    </>
   );
 };
 

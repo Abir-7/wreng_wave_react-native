@@ -1,7 +1,5 @@
 export type MechanicDocumentResponse = {
-  profile_image_url: string;
-  national_id_image_url: string;
-  certificate_image_urls: string[];
+  mechanic_image_data_id: string;
 };
 
 export type MechanicProfilePayload = {
@@ -17,5 +15,11 @@ export type MechanicProfilePayload = {
 };
 
 export type MechanicProfileResponse = {
-  message: string;
+  id: string;
+  shop_name: string | null;
+  initial_charge: number | null;
+  year_of_experience: number;
+  service_area: string;
+  specialist: string[];
+  user_id: string;
 };

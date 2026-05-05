@@ -1,7 +1,6 @@
-import { Colors } from "@/colors/colors";
 import { useAuthStore } from "@/store/auth.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -19,6 +18,15 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [hydrated, setHydrated] = useState(false);
+  const {
+    access_token,
+    role,
+    isTokenExpired,
+    is_user_car_data_complete,
+    is_mechanic_data_complete,
+    user_id,
+  } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     const unsub = useAuthStore.persist.onFinishHydration(() => {
@@ -32,6 +40,30 @@ export default function RootLayout() {
     return () => unsub();
   }, []);
 
+  useEffect(() => {
+    if (hydrated && access_token && role && !isTokenExpired()) {
+      if (role === "customer") {
+        if (!is_user_car_data_complete) {
+          router.replace({
+            pathname: "/customer/add-car",
+            params: { user_id: user_id! },
+          });
+        } else {
+          router.replace("/(customer)/home");
+        }
+      } else if (role === "mechanic") {
+        if (!is_mechanic_data_complete) {
+          router.replace({
+            pathname: "/mechanic/complete-profile",
+            params: { user_id: user_id! },
+          });
+        } else {
+          router.replace("/(mechanic)/home");
+        }
+      }
+    }
+  }, [hydrated, access_token, role]);
+
   if (!hydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -43,21 +75,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: "#fff",
-            },
-            headerTintColor: Colors.primary,
-            headerTitleStyle: {
-              fontWeight: "bold",
-              fontSize: 18,
-            },
-            headerShadowVisible: false,
-            headerTitleAlign: "center",
-          }}
-        >
+        <Stack screenOptions={{}}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ title: "Login" }} />
           <Stack.Screen name="signup" options={{ title: "Create Account" }} />
@@ -78,15 +96,12 @@ export default function RootLayout() {
             name="customer/add-car"
             options={{ title: "Add New Car" }}
           />
-          <Stack.Screen name="customer/home" options={{ title: "Dashboard" }} />
-          <Stack.Screen
-            name="mechanic/home"
-            options={{ title: "Mechanic Dashboard" }}
-          />
+          <Stack.Screen name="(customer)" options={{ headerShown: false }} />
           <Stack.Screen
             name="mechanic/complete-profile"
             options={{ title: "Complete Profile" }}
           />
+          <Stack.Screen name="(mechanic)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
 

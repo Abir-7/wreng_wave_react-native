@@ -12,6 +12,8 @@ interface AuthState {
   role: ValidRole | null;
   user_id: string | null;
   user_email: string | null;
+  is_user_car_data_complete: boolean;
+  is_mechanic_data_complete: boolean;
 
   setTokens: (access: string, refresh: string) => void;
   setFromResponse: (res: {
@@ -19,6 +21,8 @@ interface AuthState {
     role: ValidRole;
     access_token: string;
     refresh_token: string;
+    is_user_car_data_complete?: boolean;
+    is_mechanic_data_complete?: boolean;
   }) => void;
   decodeToken: () => DecodedToken | null;
   isTokenExpired: () => boolean;
@@ -33,6 +37,8 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       user_id: null,
       user_email: null,
+      is_user_car_data_complete: false,
+      is_mechanic_data_complete: false,
 
       setTokens: (access, refresh) =>
         set({ access_token: access, refresh_token: refresh }),
@@ -43,6 +49,8 @@ export const useAuthStore = create<AuthState>()(
           refresh_token: res.refresh_token,
           role: res.role,
           user_id: res.user_id,
+          is_user_car_data_complete: res.is_user_car_data_complete ?? false,
+          is_mechanic_data_complete: res.is_mechanic_data_complete ?? false,
         }),
 
       decodeToken: () => {
@@ -85,6 +93,8 @@ export const useAuthStore = create<AuthState>()(
         role: state.role,
         user_id: state.user_id,
         user_email: state.user_email,
+        is_user_car_data_complete: state.is_user_car_data_complete,
+        is_mechanic_data_complete: state.is_mechanic_data_complete,
       }),
     },
   ),
