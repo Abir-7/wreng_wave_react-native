@@ -71,6 +71,10 @@ export default function RootLayout() {
             options={{ title: "Reset Password" }}
           />
           <Stack.Screen
+            name="location-permission"
+            options={{ title: "Location Permission" }}
+          />
+          <Stack.Screen
             name="customer/add-car"
             options={{ title: "Add New Car" }}
           />
@@ -78,6 +82,10 @@ export default function RootLayout() {
           <Stack.Screen
             name="mechanic/home"
             options={{ title: "Mechanic Dashboard" }}
+          />
+          <Stack.Screen
+            name="mechanic/complete-profile"
+            options={{ title: "Complete Profile" }}
           />
         </Stack>
         <StatusBar style="auto" />

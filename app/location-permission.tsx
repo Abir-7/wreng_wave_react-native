@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import FormWrapper from "@/components/form_wrapper";
 import Toast from "react-native-toast-message";
 
 const LocationPermission = () => {
@@ -26,8 +26,6 @@ const LocationPermission = () => {
   const handleAllowLocation = async () => {
     setLoading(true);
     try {
-      console.log("Requesting location...");
-      // 1. Check if location services are enabled
       const enabled = await Location.hasServicesEnabledAsync();
       if (!enabled) {
         Toast.show({
@@ -39,7 +37,6 @@ const LocationPermission = () => {
         return;
       }
 
-      // 2. Request permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Toast.show({
@@ -51,17 +48,14 @@ const LocationPermission = () => {
         return;
       }
 
-      // 3. Get current position with higher accuracy
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
-      console.log("Location received:", location.coords);
 
       const userIdStr = Array.isArray(user_id) ? user_id[0] : user_id;
       const roleStr = Array.isArray(role) ? role[0] : role;
 
       if (!userIdStr) {
-        console.error("User ID missing in search params");
         Toast.show({
           type: "error",
           text1: "Error",
@@ -71,8 +65,6 @@ const LocationPermission = () => {
         return;
       }
 
-      // 4. Update location via API
-      console.log("Calling updateLocation API...");
       updateLocation(
         {
           user_id: userIdStr,
@@ -81,11 +73,7 @@ const LocationPermission = () => {
         },
         {
           onSuccess: () => {
-            console.log("Location updated successfully");
             router.replace({ pathname: "/login", params: { role: roleStr } });
-          },
-          onError: (error: any) => {
-            console.error("API Error in LocationPermission:", error);
           },
           onSettled: () => {
             setLoading(false);
@@ -108,12 +96,11 @@ const LocationPermission = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <FormWrapper title="Enable Location" subtitle="">
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <Ionicons name="location" size={80} color={Colors.primary} />
         </View>
-        <Text style={styles.title}>Enable Location</Text>
         <Text style={styles.subtitle}>
           We need your location to provide better service and find nearby
           assistance.
@@ -139,47 +126,35 @@ const LocationPermission = () => {
           <Text style={styles.skipButtonText}>Skip for now</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </FormWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   content: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 30,
+    paddingTop: 20,
   },
   iconContainer: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: "#f0f0f0",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1a1a1a",
-    marginBottom: 15,
-    textAlign: "center",
+    marginBottom: 30,
   },
   subtitle: {
     fontSize: 16,
     color: "#666",
     textAlign: "center",
     lineHeight: 24,
-    marginBottom: 50,
+    marginBottom: 40,
   },
   button: {
     backgroundColor: Colors.primary,
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 40,
     borderRadius: 15,
     width: "100%",

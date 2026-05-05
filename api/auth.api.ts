@@ -57,7 +57,14 @@ export const useLogin = () => {
           router.replace("/customer/home");
         }
       } else if (data.role === "mechanic") {
-        router.replace("/mechanic/home");
+        if (!data.is_mechanic_data_complete) {
+          router.replace({
+            pathname: "/mechanic/complete-profile",
+            params: { user_id: data.user_id },
+          });
+        } else {
+          router.replace("/mechanic/home");
+        }
       }
     },
     onError: (error: any) => {

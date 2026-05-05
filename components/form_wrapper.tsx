@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface FormWrapperProps<T extends FieldValues> {
   title: string;
@@ -43,6 +43,7 @@ export default function FormWrapper<T extends FieldValues>({
   onSubmit,
 }: FormWrapperProps<T>) {
   const methods = useForm<T>({ resolver, defaultValues });
+  const insets = useSafeAreaInsets();
 
   const content = (
     <View style={styles.container}>
@@ -77,16 +78,17 @@ export default function FormWrapper<T extends FieldValues>({
   );
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#fff" }}
-      edges={["bottom", "left", "right"]}
-    >
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust based on header height if needed
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: insets.bottom + 20,
+          }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -97,7 +99,7 @@ export default function FormWrapper<T extends FieldValues>({
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -105,8 +107,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
   },
   card: {
     backgroundColor: "#fff",
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 10,
+
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
