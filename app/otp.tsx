@@ -6,6 +6,7 @@ import {
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import GlobalLoading from "@/components/global_loading";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { ValidRole } from "@/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams } from "expo-router";
@@ -58,7 +59,8 @@ const Otp = () => {
   }>();
   const { mutate: verifyUser, isPending: isVerifying } = useVerifyUser();
   const { mutate: resendCode, isPending: isResending } = useResendCode();
-  const { mutate: verifyResetPassword, isPending: isVerifyingReset } = useVerifyResetPassword();
+  const { mutate: verifyResetPassword, isPending: isVerifyingReset } =
+    useVerifyResetPassword();
 
   const onSubmit = (data: OtpForm) => {
     if (flow === "forgot-password") {
@@ -80,7 +82,7 @@ const Otp = () => {
   const isLoading = isVerifying || isResending || isVerifyingReset;
 
   return (
-    <>
+    <ScreenWrapper>
       <GlobalLoading visible={isLoading} message="Verifying..." />
       <FormWrapper
         title="Verify your email"
@@ -99,7 +101,7 @@ const Otp = () => {
           </TouchableOpacity>
         </View>
       </FormWrapper>
-    </>
+    </ScreenWrapper>
   );
 };
 

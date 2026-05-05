@@ -3,6 +3,7 @@ import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
 import GlobalLoading from "@/components/global_loading";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -24,11 +25,11 @@ export default function LoginScreen() {
   };
 
   return (
-    <>
+    <ScreenWrapper>
       <GlobalLoading visible={isPending} message="Signing in..." />
       <FormWrapper
         title={"Sign in now"}
-        subtitle=""
+        subtitle="Please enter your details to continue"
         resolver={zodResolver(loginSchema)}
         defaultValues={{ email: "" }}
         onSubmit={onSubmit}
@@ -70,7 +71,7 @@ export default function LoginScreen() {
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
       </FormWrapper>
-    </>
+    </ScreenWrapper>
   );
 }
 

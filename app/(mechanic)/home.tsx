@@ -1,26 +1,25 @@
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
+import ScreenWrapper from "@/components/screen_wrapper";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function MechanicHome() {
   return (
-    <FormWrapper
-      title="Dashboard"
-      subtitle="Overview of your business"
-      headerShown={false}
-    >
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Jobs Today</Text>
+    <ScreenWrapper headerShown={false}>
+      <FormWrapper title="Dashboard" subtitle="Overview of your business">
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Jobs Today</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>$0</Text>
+            <Text style={styles.statLabel}>Earnings</Text>
+          </View>
         </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>$0</Text>
-          <Text style={styles.statLabel}>Earnings</Text>
-        </View>
-      </View>
-    </FormWrapper>
+      </FormWrapper>
+    </ScreenWrapper>
   );
 }
 

@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import FormWrapper from "@/components/form_wrapper";
+import ScreenWrapper from "@/components/screen_wrapper";
 import Toast from "react-native-toast-message";
 
 const LocationPermission = () => {
@@ -96,37 +97,39 @@ const LocationPermission = () => {
   };
 
   return (
-    <FormWrapper title="Enable Location" subtitle="">
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="location" size={80} color={Colors.primary} />
+    <ScreenWrapper>
+      <FormWrapper title="Enable Location">
+        <View style={styles.content}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="location" size={80} color={Colors.primary} />
+          </View>
+          <Text style={styles.subtitle}>
+            We need your location to provide better service and find nearby
+            assistance.
+          </Text>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleAllowLocation}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Allow Location</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={handleSkip}
+            disabled={loading}
+          >
+            <Text style={styles.skipButtonText}>Skip for now</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.subtitle}>
-          We need your location to provide better service and find nearby
-          assistance.
-        </Text>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleAllowLocation}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Allow Location</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.skipButton}
-          onPress={handleSkip}
-          disabled={loading}
-        >
-          <Text style={styles.skipButtonText}>Skip for now</Text>
-        </TouchableOpacity>
-      </View>
-    </FormWrapper>
+      </FormWrapper>
+    </ScreenWrapper>
   );
 };
 

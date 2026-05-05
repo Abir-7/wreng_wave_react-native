@@ -9,11 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RoleScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [selected, setSelected] = useState<ValidRole | null>(null);
 
   const handleContinue = (role: ValidRole) => {
@@ -21,61 +20,54 @@ export default function RoleScreen() {
   };
 
   return (
-    <>
-      <ImageBackground
-        source={require("../assets/ui/select_role.jpg")}
-        style={styles.container}
-      >
-        <View style={styles.overlay} />
-        <View
-          style={[
-            styles.content,
-            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
-          ]}
-        >
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>Select your role</Text>
-          </View>
-
-          <View style={styles.buttonContainer}>
-            {/* User Card */}
-            <TouchableOpacity
-              onPress={() => {
-                setSelected("customer");
-                handleContinue("customer");
-              }}
-              style={{
-                ...styles.button,
-                backgroundColor:
-                  selected === "customer" ? Colors.primary : "transparent",
-                borderColor: "white",
-                borderWidth: selected === "customer" ? 0 : 1,
-              }}
-            >
-              <Text style={styles.buttonText}>User</Text>
-            </TouchableOpacity>
-
-            {/* Mechanic Card */}
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => {
-                setSelected("mechanic");
-                handleContinue("mechanic");
-              }}
-              style={{
-                ...styles.button,
-                backgroundColor:
-                  selected === "mechanic" ? Colors.primary : "transparent",
-                borderColor: "white",
-                borderWidth: selected === "mechanic" ? 0 : 1,
-              }}
-            >
-              <Text style={styles.buttonText}>Mechanic</Text>
-            </TouchableOpacity>
-          </View>
+    <ImageBackground
+      source={require("../assets/ui/select_role.jpg")}
+      style={styles.container}
+    >
+      <View style={styles.overlay} />
+      <SafeAreaView style={styles.content}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Select your role</Text>
         </View>
-      </ImageBackground>
-    </>
+
+        <View style={styles.buttonContainer}>
+          {/* User Card */}
+          <TouchableOpacity
+            onPress={() => {
+              setSelected("customer");
+              handleContinue("customer");
+            }}
+            style={{
+              ...styles.button,
+              backgroundColor:
+                selected === "customer" ? Colors.primary : "transparent",
+              borderColor: "white",
+              borderWidth: selected === "customer" ? 0 : 1,
+            }}
+          >
+            <Text style={styles.buttonText}>User</Text>
+          </TouchableOpacity>
+
+          {/* Mechanic Card */}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+              setSelected("mechanic");
+              handleContinue("mechanic");
+            }}
+            style={{
+              ...styles.button,
+              backgroundColor:
+                selected === "mechanic" ? Colors.primary : "transparent",
+              borderColor: "white",
+              borderWidth: selected === "mechanic" ? 0 : 1,
+            }}
+          >
+            <Text style={styles.buttonText}>Mechanic</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 

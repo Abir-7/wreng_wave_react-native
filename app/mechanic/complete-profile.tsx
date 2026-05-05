@@ -3,6 +3,7 @@ import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
 import GlobalLoading from "@/components/global_loading";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -144,7 +145,7 @@ export default function MechanicCompleteProfileScreen() {
     };
   
     return (
-      <>
+      <ScreenWrapper>
         <GlobalLoading visible={isSubmitting} message={loadingMessage} />
         <FormWrapper
           title="Complete Profile"
@@ -164,7 +165,7 @@ export default function MechanicCompleteProfileScreen() {
         >
           <MechanicFormContent />
         </FormWrapper>
-      </>
+      </ScreenWrapper>
     );
 }
 

@@ -3,6 +3,7 @@ import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
 import GlobalLoading from "@/components/global_loading";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -168,7 +169,7 @@ const AddCar = () => {
       for (let i = 0; i < data.cars.length; i++) {
         const car = data.cars[i];
         setLoadingMessage(`Uploading image for car #${i + 1}...`);
-        
+
         // 1. Prepare form data for image upload
         const formData = new FormData();
         const filename = car.image.split("/").pop();
@@ -211,7 +212,7 @@ const AddCar = () => {
   };
 
   return (
-    <>
+    <ScreenWrapper>
       <GlobalLoading visible={isSubmitting} message={loadingMessage} />
       <FormWrapper
         title="Add Your Cars"
@@ -234,7 +235,7 @@ const AddCar = () => {
       >
         <CarListContent />
       </FormWrapper>
-    </>
+    </ScreenWrapper>
   );
 };
 

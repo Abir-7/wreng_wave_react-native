@@ -111,6 +111,10 @@ export default function RootLayout() {
             name="customer/add-car"
             options={{ title: "Add New Car" }}
           />
+          <Stack.Screen
+            name="customer/new_issue"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="(customer)" options={{ headerShown: false }} />
           <Stack.Screen
             name="mechanic/complete-profile"

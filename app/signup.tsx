@@ -3,6 +3,7 @@ import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
 import GlobalLoading from "@/components/global_loading";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -35,11 +36,11 @@ const Signup = () => {
   };
 
   return (
-    <>
+    <ScreenWrapper>
       <GlobalLoading visible={isPending} message="Creating account..." />
       <FormWrapper
         title={"Sign up now"}
-        subtitle=""
+        subtitle="Please fill in the details to create an account"
         resolver={zodResolver(signupSchema)}
         defaultValues={{
           email: "",
@@ -51,11 +52,7 @@ const Signup = () => {
         footer={
           <View style={styles.signupRow}>
             <Text style={styles.signupText}>Already have an account? </Text>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({ pathname: "/login", params: { role } })
-              }
-            >
+            <TouchableOpacity onPress={() => router.back()}>
               <Text style={styles.signupLink}>Login</Text>
             </TouchableOpacity>
           </View>
@@ -89,7 +86,7 @@ const Signup = () => {
           secureTextEntry
         />
       </FormWrapper>
-    </>
+    </ScreenWrapper>
   );
 };
 

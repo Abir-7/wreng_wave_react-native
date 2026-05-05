@@ -2,6 +2,7 @@ import { useResetPassword } from "@/api/auth.api";
 import { Colors } from "@/colors/colors";
 import FormWrapper from "@/components/form_wrapper";
 import InputField from "@/components/input_field";
+import ScreenWrapper from "@/components/screen_wrapper";
 import { ValidRole } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +58,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <>
+    <ScreenWrapper>
       <FormWrapper
         isLoading={isPending}
         title="New Password"
@@ -109,7 +110,7 @@ const ResetPassword = () => {
           </View>
         </View>
       </Modal>
-    </>
+    </ScreenWrapper>
   );
 };
 

@@ -1,4 +1,5 @@
 import { Colors } from "@/colors/colors";
+import React from "react";
 import {
   DefaultValues,
   FieldValues,
@@ -6,118 +7,69 @@ import {
   Resolver,
   useForm,
 } from "react-hook-form";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface FormWrapperProps<T extends FieldValues> {
-  title: string;
-  subtitle?: string;
   children: React.ReactNode;
-  footer?: React.ReactNode;
-  header?: React.ReactNode;
-  submitLabel?: string;
-  defaultValues?: DefaultValues<T>;
-  isLoading?: boolean;
-  resolver?: Resolver<T>;
   onSubmit?: (data: T) => void;
-  headerShown?: boolean;
+  defaultValues?: DefaultValues<T>;
+  resolver?: Resolver<T>;
+  submitLabel?: string;
+  isLoading?: boolean;
+  title?: string;
+  subtitle?: string;
+  footer?: React.ReactNode;
 }
 
 export default function FormWrapper<T extends FieldValues>({
+  children,
+  onSubmit,
+  defaultValues,
+  resolver,
+  submitLabel = "Submit",
+  isLoading = false,
   title,
   subtitle,
-  children,
   footer,
-  header,
-  submitLabel = "Submit",
-  defaultValues,
-  isLoading = false,
-  resolver,
-  onSubmit,
-  headerShown = true,
 }: FormWrapperProps<T>) {
   const methods = useForm<T>({ resolver, defaultValues });
-  const insets = useSafeAreaInsets();
 
   const content = (
-    <View style={styles.container}>
-      {/* Custom Header */}
-      {header}
+    <View style={styles.formContainer}>
+      {title && <Text style={styles.title}>{title}</Text>}
+      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
 
-      {/* Card */}
-      <View style={styles.card}>
-        {/* Header */}
-        <Text style={styles.title}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      <View style={styles.fieldsContainer}>{children}</View>
 
-        {/* Children */}
-        <View style={{ marginTop: 20 }}>{children}</View>
+      {onSubmit && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={methods.handleSubmit(onSubmit)}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? "Loading..." : submitLabel}
+          </Text>
+        </TouchableOpacity>
+      )}
 
-        {/* Submit Button */}
-        {onSubmit && (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={methods.handleSubmit(onSubmit)}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? "Loading..." : submitLabel}
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {/* Footer */}
-        {footer && <View style={{ marginTop: 10 }}>{footer}</View>}
-      </View>
+      {footer && <View style={styles.footerContainer}>{footer}</View>}
     </View>
   );
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust based on header height if needed
-      >
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingTop: headerShown ? 0 : insets.top,
-            paddingBottom: insets.bottom + 20,
-          }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {onSubmit ? (
-            <FormProvider {...methods}>{content}</FormProvider>
-          ) : (
-            content
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+  return onSubmit ? (
+    <FormProvider {...methods}>{content}</FormProvider>
+  ) : (
+    <View>{content}</View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
+  formContainer: {
+    width: "100%",
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#1a1a1a",
     marginBottom: 8,
@@ -127,22 +79,27 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 24,
   },
+  fieldsContainer: {
+    marginBottom: 16,
+  },
   button: {
     backgroundColor: Colors.primary,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 10,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 4,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+  },
+  footerContainer: {
+    marginTop: 16,
   },
 });
