@@ -1,7 +1,5 @@
 import { useGetMyCars } from "@/api/car.api";
 import { Colors } from "@/colors/colors";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import React, { useState } from "react";
@@ -14,6 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import CustomTimePicker from "./custome_timepicker";
+import VoiceRecorder, { VoiceRecording } from "./voice_input";
 
 export interface MyCarsResponse {
   id: string;
@@ -100,7 +100,6 @@ function CarCard({
       >
         {car.brand} {car.model}
       </Text>
-      {/* <Text style={styles.carYear}>{car.year}</Text> */}
       {selected && (
         <View style={styles.carCheck}>
           <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
@@ -222,16 +221,15 @@ function TimeRow({
           </TouchableOpacity>
         ))}
       </View>
-      {showPicker && (
-        <DateTimePicker
-          value={time || new Date()}
-          mode="time"
-          onChange={(_, t) => {
-            setShowPicker(false);
-            if (t) setTime(t);
-          }}
-        />
-      )}
+      <CustomTimePicker
+        visible={showPicker}
+        value={time}
+        onConfirm={(t) => {
+          setTime(t);
+          setShowPicker(false);
+        }}
+        onCancel={() => setShowPicker(false)}
+      />
     </View>
   );
 }
@@ -242,7 +240,9 @@ export default function ServiceRequestSection() {
 
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
   const [images, setImages] = useState<any[]>([]);
-  const [audio, setAudio] = useState<any>(null);
+  const [voiceRecording, setVoiceRecording] = useState<VoiceRecording | null>(
+    null,
+  ); // 👈 replaced `audio`
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date | null>(null);
   const [time, setTime] = useState<Date | null>(null);
@@ -264,11 +264,6 @@ export default function ServiceRequestSection() {
 
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const pickAudio = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: "audio/*" });
-    if (!result.canceled) setAudio(result.assets[0]);
   };
 
   const getCurrentLocation = async () => {
@@ -309,25 +304,6 @@ export default function ServiceRequestSection() {
             </View>
           </ScrollView>
         )}
-
-        {/* Selected car info strip */}
-        {/* {selectedCarId && cars && (
-          <View style={styles.selectedCarStrip}>
-            {(() => {
-              const car = cars.find((c) => c.id === selectedCarId);
-              return car ? (
-                <>
-                  <Text style={styles.selectedCarName}>
-                    {car.brand} {car.model} · {car.year}
-                  </Text>
-                  <Text style={styles.selectedCarPlate}>
-                    🪪 {car.license_plate}
-                  </Text>
-                </>
-              ) : null;
-            })()}
-          </View>
-        )} */}
       </SectionCard>
 
       {/* ── Add Photo ── */}
@@ -371,31 +347,10 @@ export default function ServiceRequestSection() {
       </SectionCard>
 
       {/* ── Record Voice Note ── */}
+      {/* 👇 Replaced old DocumentPicker-based voice section with VoiceRecorder */}
       <SectionCard>
         <SectionTitle title="Record Voice Note" />
-        <View style={styles.voiceRow}>
-          <TouchableOpacity style={styles.playBtn} onPress={pickAudio}>
-            <Text style={styles.playIcon}>▶</Text>
-          </TouchableOpacity>
-          <View style={styles.waveform}>
-            {Array.from({ length: 28 }).map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.waveBar,
-                  { height: 6 + Math.abs(Math.sin(i * 0.7)) * 12 },
-                  audio && i < 18 && styles.waveBarActive,
-                ]}
-              />
-            ))}
-          </View>
-          <Text style={styles.voiceDuration}>{audio ? "0:35" : "0:00"}</Text>
-          {audio && (
-            <View style={styles.voiceCheck}>
-              <Text style={{ color: "#fff", fontSize: 12 }}>✓</Text>
-            </View>
-          )}
-        </View>
+        <VoiceRecorder value={voiceRecording} onChange={setVoiceRecording} />
       </SectionCard>
 
       {/* ── Describe Problem ── */}
@@ -460,11 +415,7 @@ export default function ServiceRequestSection() {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   root: { flex: 1, padding: 0, margin: 0 },
-  card: {
-    borderRadius: 16,
-
-    padding: 16,
-  },
+  card: { borderRadius: 16, padding: 16 },
   sectionTitle: {
     fontSize: 15,
     fontWeight: "700",
@@ -472,7 +423,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  // No cars
   noCarsBox: {
     paddingVertical: 16,
     alignItems: "center",
@@ -481,7 +431,6 @@ const styles = StyleSheet.create({
   },
   noCarsText: { color: "#aaa", fontSize: 13 },
 
-  // Cars
   carRow: { flexDirection: "row", gap: 10 },
   carItem: {
     alignItems: "center",
@@ -543,21 +492,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Selected car strip
-  selectedCarStrip: {
-    marginTop: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#f0f6ff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  selectedCarName: { fontSize: 13, fontWeight: "700", color: "#1a1a2e" },
-  selectedCarPlate: { fontSize: 12, color: "#4A90E2", fontWeight: "600" },
-
-  // Photos
   photoHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -609,38 +543,6 @@ const styles = StyleSheet.create({
   },
   photoLimitNote: { fontSize: 11, color: "#e74c3c", marginTop: 8 },
 
-  // Voice
-  voiceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#ffe4d2b6",
-    padding: 10,
-    borderRadius: 10,
-  },
-  playBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  playIcon: { color: "#fff", fontSize: 14, marginLeft: 2 },
-  waveform: { flex: 1, flexDirection: "row", alignItems: "center", gap: 2 },
-  waveBar: { width: 3, borderRadius: 2, backgroundColor: Colors.primary },
-  waveBarActive: { backgroundColor: Colors.primary },
-  voiceDuration: { fontSize: 12, color: "#888" },
-  voiceCheck: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#27ae60",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // Description
   descHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
   optionalBadge: {
     backgroundColor: "#f0f4ff",
@@ -663,7 +565,6 @@ const styles = StyleSheet.create({
 
   divider: { height: 1, backgroundColor: "#f0f0f0", marginVertical: 14 },
 
-  // Location
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -686,7 +587,6 @@ const styles = StyleSheet.create({
   currentLocIcon: { color: Colors.primary, fontSize: 16 },
   currentLocText: { color: Colors.primary, fontSize: 13, fontWeight: "600" },
 
-  // CTA
   ctaBtn: {
     marginHorizontal: 16,
     marginTop: 20,
