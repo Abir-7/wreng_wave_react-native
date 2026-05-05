@@ -1,6 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Colors } from "@/colors/colors";
-import { Audio } from "expo-av";
+import {
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  useAudioPlayer,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from "expo-audio";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -147,99 +152,77 @@ function WaveformBars({
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function VoiceRecorder({ value, onChange }: VoiceRecorderProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [elapsed, setElapsed] = useState(0); // ms
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [elapsed, setElapsed] = useState(0); // ms — synced from recorder state
 
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // ── expo-audio hooks ──────────────────────────────────────────────────────
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder, 100); // poll every 100 ms
+  const player = useAudioPlayer(value?.uri ?? "");
+
+  const isRecording = recorderState.isRecording;
+
+  // Keep elapsed in sync with recorder's own meter
+  useEffect(() => {
+    if (isRecording) {
+      setElapsed(Math.round(recorderState.durationMillis ?? 0));
+    }
+  }, [recorderState.durationMillis, isRecording]);
+
+  // Auto-stop playing state when playback finishes
+  useEffect(() => {
+    if (!player.playing && isPlaying) {
+      setIsPlaying(false);
+    }
+  }, [player.playing]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      recording?.stopAndUnloadAsync();
-      sound?.unloadAsync();
+      if (isRecording) recorder.stop();
     };
   }, []);
 
   const startRecording = async () => {
     try {
-      const { granted } = await Audio.requestPermissionsAsync();
+      const { granted } = await requestRecordingPermissionsAsync();
       if (!granted) return;
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const { recording: rec } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      );
-      setRecording(rec);
-      setIsRecording(true);
       setElapsed(0);
-
-      timerRef.current = setInterval(() => {
-        setElapsed((prev) => prev + 100);
-      }, 100);
+      await recorder.record();
     } catch (e) {
       console.error("Failed to start recording", e);
     }
   };
 
   const stopRecording = async () => {
-    if (!recording) return;
     try {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsRecording(false);
-      await recording.stopAndUnloadAsync();
-      const status = await recording.getStatusAsync();
-      const uri = recording.getURI();
+      const durationMillis = recorderState.durationMillis ?? elapsed;
+      await recorder.stop();
+      const uri = recorder.uri;
       if (uri) {
-        onChange({
-          uri,
-          durationMillis: (status as any).durationMillis ?? elapsed,
-        });
+        onChange({ uri, durationMillis });
       }
-      setRecording(null);
     } catch (e) {
       console.error("Failed to stop recording", e);
     }
   };
 
-  const playRecording = async () => {
+  const playRecording = () => {
     if (!value?.uri) return;
-    try {
-      if (sound) {
-        await sound.unloadAsync();
-        setSound(null);
-      }
-      const { sound: s } = await Audio.Sound.createAsync(
-        { uri: value.uri },
-        { shouldPlay: true },
-      );
-      setSound(s);
-      setIsPlaying(true);
-      s.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlaying(false);
-        }
-      });
-    } catch (e) {
-      console.error("Playback failed", e);
-    }
+    player.seekTo(0);
+    player.play();
+    setIsPlaying(true);
   };
 
-  const stopPlayback = async () => {
-    await sound?.stopAsync();
+  const stopPlayback = () => {
+    player.pause();
     setIsPlaying(false);
   };
 
   const deleteRecording = () => {
     onChange(null);
     setElapsed(0);
+    setIsPlaying(false);
   };
 
   const handleClose = async () => {
